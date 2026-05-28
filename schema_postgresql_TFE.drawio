@@ -1,0 +1,127 @@
+<mxfile host="app.diagrams.net" modified="2026-05-20T00:00:00.000Z" agent="TFE Scabel" version="22.1.0" type="device">
+  <diagram id="schema-pg-tfe" name="Schéma PostgreSQL 16 - 4 tables + vues">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="TFE Scabel — Modèle PostgreSQL 16 (Figure schéma §3.3)&#xa;4 tables + 6 vues KPI | Fichiers : sql/init.sql, sql/order_facts.sql, sql/views.sql" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="15" width="1000" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="src_val" value="Validateur Python&#xa;engine.py → db.persist_result()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="640" y="70" width="220" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tbl_runs" value="&lt;b&gt;validation_runs&lt;/b&gt; &lt;i&gt;(1 ligne / fichier .ORO)&lt;/i&gt;&#xa;────────────────────────&#xa;&lt;b&gt;PK&lt;/b&gt; id              BIGSERIAL&#xa;    filename        TEXT NOT NULL&#xa;    file_sha256     CHAR(64)&#xa;    status          TEXT CHECK (OK|KO|PARSE_ERROR)&#xa;    error_count     INT&#xa;    started_at      TIMESTAMPTZ&#xa;    finished_at     TIMESTAMPTZ&#xa;────────────────────────&#xa;IDX: status, started_at DESC&#xa;&lt;font color=#666666&gt;Corpus : 1 136 runs&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="580" y="160" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tbl_errors" value="&lt;b&gt;validation_errors&lt;/b&gt; &lt;i&gt;(N violations / run)&lt;/i&gt;&#xa;────────────────────────&#xa;&lt;b&gt;PK&lt;/b&gt; id              BIGSERIAL&#xa;&lt;b&gt;FK&lt;/b&gt; run_id          → validation_runs.id&#xa;    ON DELETE CASCADE&#xa;    rule_id         TEXT (R01–R10, PARSE)&#xa;    message         TEXT&#xa;────────────────────────&#xa;IDX: run_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=8;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="200" y="180" width="260" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tbl_facts" value="&lt;b&gt;order_facts&lt;/b&gt; &lt;i&gt;(1 ligne / commande)&lt;/i&gt;&#xa;────────────────────────&#xa;&lt;b&gt;PK/FK&lt;/b&gt; run_id → validation_runs.id&#xa;    ON DELETE CASCADE (1:1)&#xa;────────────────────────&#xa;&lt;b&gt;SCA (acheteur)&lt;/b&gt;&#xa;    buyer_name, buyer_gln&#xa;    buyer_city, buyer_postal&#xa;&lt;b&gt;Fournisseur&lt;/b&gt;&#xa;    supplier_name, supplier_gln&#xa;&lt;b&gt;Dates / refs&lt;/b&gt;&#xa;    document_date, interchange_ref&#xa;    message_ref, document_ref&#xa;    delivery_datetime_raw&#xa;&lt;b&gt;Compteurs&lt;/b&gt;&#xa;    line_count, distinct_gtin_count&#xa;    dtm_json (+ GLN livraison/facture…)&#xa;────────────────────────&#xa;IDX: buyer_name, supplier_name, document_date&#xa;&lt;font color=#666666&gt;Corpus : 1 136 faits&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="920" y="160" width="280" height="280" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tbl_lines" value="&lt;b&gt;order_lines&lt;/b&gt; &lt;i&gt;(N lignes / commande)&lt;/i&gt;&#xa;────────────────────────&#xa;&lt;b&gt;PK&lt;/b&gt; id              BIGSERIAL&#xa;&lt;b&gt;FK&lt;/b&gt; run_id          → validation_runs.id&#xa;    ON DELETE CASCADE&#xa;    line_number     TEXT&#xa;    gtin            TEXT&#xa;    description     TEXT&#xa;    qty_ordered     TEXT&#xa;    qty_unit        TEXT&#xa;    price_amount    TEXT&#xa;    price_qualifier TEXT&#xa;────────────────────────&#xa;IDX: run_id, gtin&#xa;&lt;font color=#666666&gt;Corpus : 42 657 lignes&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="920" y="480" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="zone_views" value="Vues SQL analytiques (sql/views.sql) — couche Qlik Sense / Railway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;dashPattern=8 8;fontStyle=1;fontSize=11;verticalAlign=top;spacingTop=8" vertex="1" parent="1">
+          <mxGeometry x="120" y="720" width="1120" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="v1" value="v_kpi_status&#xa;OK / KO / PARSE %" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="140" y="760" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="v2" value="v_errors_by_rule&#xa;top R01–R10" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="290" y="760" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="v3" value="v_daily_volume&#xa;volume / jour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="440" y="760" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="v4" value="v_runs_enriched&#xa;run + SCA + fournisseur" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="590" y="760" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="v5" value="v_lines_enriched&#xa;lignes + statut run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="760" y="760" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="v6" value="v_conformite_par_sca&#xa;taux par centrale" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="920" y="760" width="150" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="qlik" value="Qlik Cloud&#xa;load_kpi_dashboard.qvs&#xa;← Railway (make db-push-railway)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1090" y="760" width="130" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="card1" value="1 : N" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="460" y="230" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="card2" value="1 : 1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="870" y="250" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="card3" value="1 : N" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="870" y="450" width="40" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e_src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#d6b656;endArrow=classic;endFill=1" edge="1" parent="1" source="src_val" target="tbl_runs">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_err" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#d79b00;endArrow=classic;endFill=1;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0" edge="1" parent="1" source="tbl_errors" target="tbl_runs">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_facts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#6c8ebf;endArrow=classic;endFill=1;startArrow=ERone;startFill=0;endArrow=ERone;endFill=0" edge="1" parent="1" source="tbl_facts" target="tbl_runs">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_lines" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#9673a6;endArrow=classic;endFill=1;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0" edge="1" parent="1" source="tbl_lines" target="tbl_runs">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_lines_facts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1;strokeColor=#9673a6;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_lines" target="tbl_facts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ev1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_runs" target="v1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ev2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_errors" target="v2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ev3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_runs" target="v3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ev4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_facts" target="v4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ev5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_lines" target="v5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ev6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#999999;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="tbl_facts" target="v6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="evq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;dashed=1;endArrow=classic;endFill=1" edge="1" parent="1" source="v4" target="qlik">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legende" value="Légende : vert = validation | orange = erreurs | bleu = faits commande (SCA/fournisseur) | violet = lignes produits | gris pointillé = vues SQL&#xa;Connexion locale : localhost:5433 (Docker) | Qlik : Railway kodama.proxy.rlwy.net:42294&#xa;Exporter : Fichier → Exporter PNG → figures/figure_schema_postgresql.png (Figure §3.3 mémoire)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="120" y="940" width="1100" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="extract_box" value="extract.py&#xa;(après validation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="920" y="100" width="120" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_ext" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;dashed=1;endArrow=classic" edge="1" parent="1" source="src_val" target="extract_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_ext2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;dashed=1;endArrow=classic" edge="1" parent="1" source="extract_box" target="tbl_facts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_ext3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9673a6;dashed=1;endArrow=classic" edge="1" parent="1" source="extract_box" target="tbl_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,6 @@
+# Fichiers Markdown
+*.md
+
+# Fichiers ORO (flux EDI)
+*.oro
+*.ORO

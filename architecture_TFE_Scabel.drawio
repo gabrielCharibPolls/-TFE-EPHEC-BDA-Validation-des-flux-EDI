@@ -1,0 +1,77 @@
+<mxfile host="app.diagrams.net" modified="2026-05-02T00:00:00.000Z" agent="Mozilla/5.0 (TFE Scabel)" version="22.1.0" etag="tfe-arch-1" type="device">
+  <diagram id="architecture-tfe-scabel" name="Architecture TFE - réalisé vs reste">
+    <mxGraphModel dx="1300" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="TFE Scabel — Flux EDI .ORO : réalisé (plein) / reste à faire (zone pointillée)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="720" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="box_in" value="Répertoire fichiers&#xa;in/*.ORO&#xa;(ISO-8859-15)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="160" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="box_val" value="Validateur Python&#xa;(Docker)&#xa;• R01–R10&#xa;• SHA-256&#xa;• OK / KO / PARSE_ERROR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="110" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="box_pg" value="PostgreSQL 16&#xa;validation_runs&#xa;validation_errors" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="115" width="160" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="box_pbi" value="Qlik Sense&#xa;(connexion PostgreSQL)&#xa;KPI / tableaux de bord" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;endArrow=classic;startArrow=classic" edge="1" parent="1" source="box_in" target="box_val">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#82b366;endArrow=classic;startArrow=classic" edge="1" parent="1" source="box_val" target="box_pg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#6c8ebf;endArrow=classic;startArrow=classic;dashed=1" edge="1" parent="1" source="box_pg" target="box_pbi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="zone_todo" value="RESTE À FAIRE (prioriser selon TODO_TFE.txt)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;dashPattern=8 8;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="940" height="220" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="t1" value="Alerting&#xa;Teams / e-mail&#xa;(non codé)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="120" y="380" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t2" value="Validation XSD&#xa;(optionnel /&#xa;à aligner mémoire)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="280" y="380" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t3" value="Ingestion auto&#xa;cron / watch&#xa;répertoire" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="440" y="380" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t4" value="Vues SQL KPI&#xa;pour BI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="600" y="380" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t5" value="Tests pytest&#xa;règles métier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="760" y="380" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t6" value="Réconciliation&#xa;ERP M3&#xa;(hors accès M3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="120" y="470" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t7" value="Anonymisation&#xa;dans la chaîne&#xa;Docker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="280" y="470" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="t8" value="Logs structurés&#xa;JSON / niveaux" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="440" y="470" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ea1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;dashPattern=4 4;strokeColor=#d79b00;endArrow=open;endFill=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="box_val" target="zone_todo">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="note" value="Légende : vert = implémenté dans le dépôt | bleu = branché côté démo (BI) | orange = manquant ou partiel" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=11;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="80" y="580" width="560" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

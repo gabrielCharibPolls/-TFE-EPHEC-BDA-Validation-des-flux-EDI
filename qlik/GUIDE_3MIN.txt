@@ -1,0 +1,98 @@
+================================================================================
+TFE Scabel — Qlik Cloud en 3 minutes (demain matin)
+================================================================================
+
+AVANT (30 sec, terminal sur ton Mac) :
+  cd /Users/charib/Documents/cours/Q2/TFE
+  make db-push-railway          # sync données → Railway cloud
+
+================================================================================
+ÉTAPE 1 — Connexion PostgreSQL (1 min)
+================================================================================
+
+1. Ouvre https://XXXX.eu.qlikcloud.com  (ton tenant)
+2. Icône engrenage → Gestion → Connexions de données → Créer
+3. Type : PostgreSQL
+4. Nom EXACT (copier-coller) :
+
+   PostgreSQL_kodama.proxy.rlwy.net
+
+5. Remplir :
+
+   Host name   : kodama.proxy.rlwy.net
+   Port        : 42294
+   Database    : railway
+   User name   : (voir .env.railway — variable POSTGRES_USER ou équivalent)
+   Password    : (voir .env.railway — ne jamais commiter ce fichier)
+   SSL         : require
+
+6. Tester → Enregistrer
+
+================================================================================
+ÉTAPE 2 — App + script (1 min)
+================================================================================
+
+1. Analytics → Créer une app → app vide
+   Nom : TFE Scabel EDI KPI
+
+2. Ouvrir l'app → Éditeur de chargement de données
+   (Data load editor / Préparer)
+
+3. Supprimer le script par défaut
+
+4. AVANT le chargement Qlik (terminal) :
+   make views
+   make backfill-order-facts
+   make db-push-railway
+
+5. Ouvrir le fichier :
+   qlik/load_kpi_dashboard.qvs
+   (dans ton projet TFE sur le Mac)
+
+6. Tout copier (Cmd+A, Cmd+C) → coller dans Qlik
+
+7. Cliquer : Charger les données
+   → Attendre "Chargement terminé"
+
+   Guide détaillé feuilles : qlik/GUIDE_DASHBOARD.md
+
+================================================================================
+ÉTAPE 3 — Feuille KPI (1 min)
+================================================================================
+
+1. Nouvelle feuille
+
+2. Ajouter 4 cartes KPI (table KPI_Global) :
+   - Fichiers traités  →  Sum(total_fichiers)
+   - Taux conformité   →  Sum(taux_conformite_pct) & ' %'
+   - Nb SCA            →  Sum(nb_sca)
+   - Lignes EDI        →  Sum(nb_lignes_total)
+
+3. Ajouter graphiques :
+   - Donut     → KPI_Statuts     (status / nb_fichiers)
+   - Ligne     → KPI_Volume_Jour (jour / total)
+   - Barres    → KPI_Par_SCA     (sca_name / nb_commandes)
+   - Barres    → KPI_Top_Produits (description / nb_lignes)
+   - Table     → Detail_Commandes
+
+4. Titre feuille : "Pilotage validation EDI — Scabel"
+
+5. Capture écran → Figure 3 ou 4 du mémoire
+
+================================================================================
+SI ERREUR
+================================================================================
+
+"Connexion impossible"     → SSL = require, port 42294 (pas 5432)
+"Table v_runs_enriched"    → make db-push-railway d'abord
+"Mémoire insuffisante"     → utiliser CE script (pas l'ancien 10 tables)
+"Pas accès aux données"    → vérifier nom connexion = PostgreSQL_kodama.proxy.rlwy.net
+
+================================================================================
+EXPORT APP (optionnel, pour réutiliser)
+================================================================================
+
+Hub → clic droit sur l'app → Exporter → fichier .qvf
+(Demain soir, pour backup jury)
+
+================================================================================

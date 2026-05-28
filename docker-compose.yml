@@ -1,0 +1,44 @@
+# TFE Scabel — validation EDI (.ORO) + PostgreSQL (mode Docker)
+# Usage : make docker-run
+
+services:
+  db:
+    image: postgres:16-bookworm
+    container_name: tfe_edi_db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-edi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edi}
+      POSTGRES_DB: ${POSTGRES_DB:-edi_validation}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./sql/order_facts.sql:/docker-entrypoint-initdb.d/02-order_facts.sql:ro
+      - ./sql/views.sql:/docker-entrypoint-initdb.d/03-views.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-edi} -d ${POSTGRES_DB:-edi_validation}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  validator:
+    build:
+      context: ./validator
+      dockerfile: Dockerfile
+    container_name: tfe_edi_validator
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-edi}:${POSTGRES_PASSWORD:-edi}@db:5432/${POSTGRES_DB:-edi_validation}
+      EDI_INPUT_DIR: /data/in
+      VALIDATOR_MAX_FILES: ${VALIDATOR_MAX_FILES:-0}
+    volumes:
+      - ./in:/data/in:ro
+
+volumes:
+  postgres_data:

@@ -1,0 +1,138 @@
+// =============================================================================
+// TFE Scabel — Dashboard KPI validation EDI (Qlik Cloud / Sense)
+// Prérequis : connexion PostgreSQL Railway + vues public.* (make db-push-railway)
+// Nom connexion EXACT : PostgreSQL_kodama.proxy.rlwy.net
+// =============================================================================
+
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyFormat='###0,00 €;-###0,00 €';
+SET DateFormat='DD/MM/YYYY';
+
+LIB CONNECT TO 'PostgreSQL_kodama.proxy.rlwy.net';
+
+// ── 1. KPI globaux (cartes en haut de feuille)
+[KPI_Global]:
+LOAD
+    total_fichiers,
+    nb_ok,
+    nb_ko,
+    nb_parse_error,
+    taux_conformite_pct,
+    nb_sca,
+    nb_fournisseurs,
+    nb_lignes_total,
+    erreurs_total;
+SQL
+SELECT
+    COUNT(*)                                                    AS total_fichiers,
+    COUNT(*) FILTER (WHERE status = 'OK')                       AS nb_ok,
+    COUNT(*) FILTER (WHERE status = 'KO')                       AS nb_ko,
+    COUNT(*) FILTER (WHERE status = 'PARSE_ERROR')              AS nb_parse_error,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE status = 'OK') / NULLIF(COUNT(*), 0), 1) AS taux_conformite_pct,
+    COUNT(DISTINCT sca_name)                                    AS nb_sca,
+    COUNT(DISTINCT supplier_name)                               AS nb_fournisseurs,
+    SUM(line_count)                                             AS nb_lignes_total,
+    SUM(error_count)                                            AS erreurs_total
+FROM public.v_runs_enriched;
+
+// ── 2. Répartition des statuts (donut)
+[KPI_Statuts]:
+LOAD status, nb_fichiers, pct;
+SQL
+SELECT status, COUNT(*) AS nb_fichiers,
+       ROUND(100.0 * COUNT(*) / NULLIF(SUM(COUNT(*)) OVER (), 0), 1) AS pct
+FROM public.v_runs_enriched
+GROUP BY status;
+
+// ── 3. Volume par date document (courbe métier)
+[KPI_Volume_Jour]:
+LOAD jour, total, nb_ok, taux_conformite;
+SQL
+SELECT document_date AS jour,
+       COUNT(*) AS total,
+       COUNT(*) FILTER (WHERE status = 'OK') AS nb_ok,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE status = 'OK') / NULLIF(COUNT(*), 0), 1) AS taux_conformite
+FROM public.v_runs_enriched
+WHERE document_date IS NOT NULL
+GROUP BY document_date
+ORDER BY document_date;
+
+// ── 4. Volume par jour de traitement (courbe opérationnelle)
+[KPI_Volume_Traitement]:
+LOAD jour_traitement, total, nb_ko, taux_conformite;
+SQL
+SELECT jour_traitement,
+       COUNT(*) AS total,
+       COUNT(*) FILTER (WHERE status = 'KO') AS nb_ko,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE status = 'OK') / NULLIF(COUNT(*), 0), 1) AS taux_conformite
+FROM public.v_runs_enriched
+GROUP BY jour_traitement
+ORDER BY jour_traitement;
+
+// ── 5. Commandes par SCA (barres)
+[KPI_Par_SCA]:
+LOAD sca_name, nb_commandes, nb_lignes, taux_conformite_pct;
+SQL
+SELECT sca_name, nb_fichiers AS nb_commandes, nb_lignes, taux_conformite_pct
+FROM public.v_conformite_par_sca
+ORDER BY nb_commandes DESC;
+
+// ── 6. Erreurs par règle métier R01–R10 (barres horizontales)
+[KPI_Erreurs_Regles]:
+LOAD rule_id, nb_violations;
+SQL
+SELECT rule_id, nb_violations
+FROM public.v_errors_by_rule
+ORDER BY nb_violations DESC;
+
+// ── 7. Heatmap erreurs × semaine (si anomalies)
+[KPI_Erreurs_Semaine]:
+LOAD semaine, rule_id, nb_violations;
+SQL
+SELECT semaine, rule_id, nb_violations
+FROM public.v_errors_weekly_matrix
+ORDER BY semaine, rule_id;
+
+// ── 8. Top 15 produits (GTIN)
+[KPI_Top_Produits]:
+LOAD sca_name, gtin, description, nb_lignes, prix_moyen;
+SQL
+SELECT sca_name, gtin, LEFT(description, 45) AS description,
+       COUNT(*) AS nb_lignes,
+       ROUND(AVG(price_amount::numeric), 3) AS prix_moyen
+FROM public.v_lines_enriched
+WHERE gtin IS NOT NULL AND price_amount IS NOT NULL
+GROUP BY sca_name, gtin, LEFT(description, 45)
+ORDER BY nb_lignes DESC
+LIMIT 15;
+
+// ── 9. Table détail filtrable (liste commandes)
+[Detail_Commandes]:
+LOAD run_id, filename, status, document_date, jour_traitement, sca_name, supplier_name, line_count, error_count;
+SQL
+SELECT run_id, filename, status, document_date, jour_traitement,
+       sca_name, supplier_name, line_count, error_count
+FROM public.v_runs_enriched
+ORDER BY COALESCE(document_date, jour_traitement) DESC, filename;
+
+// ── 10. Dernières anomalies (focus jury / support)
+[Detail_Anomalies]:
+LOAD filename, status, sca_name, error_count, jour_traitement;
+SQL
+SELECT filename, status, sca_name, error_count, jour_traitement
+FROM public.v_runs_enriched
+WHERE status <> 'OK'
+ORDER BY jour_traitement DESC, error_count DESC
+LIMIT 50;
+
+// =============================================================================
+// MESURES QLIK SUGGÉRÉES (créer dans l'app, section Mesures)
+// =============================================================================
+// Fichiers traités     = Sum(KPI_Global.total_fichiers)
+// Taux conformité      = Sum(KPI_Global.taux_conformite_pct) & ' %'
+// Nb SCA actives       = Sum(KPI_Global.nb_sca)
+// Lignes EDI           = Sum(KPI_Global.nb_lignes_total)
+// Erreurs détectées    = Sum(KPI_Global.erreurs_total)
+// Commandes KO         = Sum(KPI_Global.nb_ko)
+// =============================================================================

@@ -1,0 +1,129 @@
+<mxfile host="app.diagrams.net" modified="2026-05-20T00:00:00.000Z" agent="TFE Scabel" version="22.1.0" type="device">
+  <diagram id="anonymisation-tfe" name="Anonymisation RGPD - chemins et code">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="TFE Scabel — Gouvernance des données : chemins production vs anonymisation (Figure 5)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=15;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="15" width="900" height="35" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="box_in" value="Répertoire&#xa;in/*.ORO&#xa;(originaux intacts)&#xa;ISO-8859-15" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="560" y="70" width="160" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="zone_a" value="CHEMIN A — Production / analyse (données réelles, env. contrôlé)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=0;fontStyle=1;fontSize=11;verticalAlign=top;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="620" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="a_val" value="Validateur Docker&#xa;validator/app/engine.py&#xa;R01–R10 + extract.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="80" y="230" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_pg" value="PostgreSQL :5433&#xa;validation_runs&#xa;order_facts / order_lines" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="280" y="225" width="150" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_rail" value="make db-push-railway&#xa;sync_railway.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="470" y="240" width="150" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_qlik" value="Qlik Cloud&#xa;load_kpi_dashboard.qvs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="470" y="310" width="150" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="zone_b" value="CHEMIN B — Démonstration / partage hors Scabel (RGPD)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=0;fontStyle=1;fontSize=11;verticalAlign=top;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="700" y="180" width="660" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="b_script" value="anonymize_oro_orders.py&#xa;(stdlib Python, hors Docker)&#xa;• _collect_supplier_names&#xa;• _obfuscate_price&#xa;• _anonymize_tree" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="740" y="230" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="b_out" value="out_anonymized/*.ORO&#xa;copies pseudonymisées" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="980" y="240" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="b_demo" value="Mémoire EPHEC / jury&#xa;sans tarifs ni noms réels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6" vertex="1" parent="1">
+          <mxGeometry x="1180" y="240" width="150" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e_in_a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#82b366;endArrow=classic" edge="1" parent="1" source="box_in" target="a_val">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_in_b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#6c8ebf;endArrow=classic" edge="1" parent="1" source="box_in" target="b_script">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#82b366;endArrow=classic" edge="1" parent="1" source="a_val" target="a_pg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#82b366;endArrow=classic" edge="1" parent="1" source="a_pg" target="a_rail">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#6c8ebf;dashed=1;endArrow=classic" edge="1" parent="1" source="a_rail" target="a_qlik">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_b1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#6c8ebf;endArrow=classic" edge="1" parent="1" source="b_script" target="b_out">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_b2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#9673a6;endArrow=classic" edge="1" parent="1" source="b_out" target="b_demo">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="zone_detail" value="Déroulé interne — anonymize_oro_orders.py (process_files)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;verticalAlign=top;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="1320" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s1" value="1. _iter_oro_files&#xa;in/*.ORO triés" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="60" y="470" width="120" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2" value="2. _collect_supplier_names&#xa;NAD SU → table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="210" y="470" width="150" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="3. FOURNISSEUR_001…&#xa;mapping stable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="390" y="470" width="130" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4" value="4. _parse_tree&#xa;ISO-8859-15" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="550" y="470" width="120" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s5" value="5. _anonymize_tree&#xa;PRI e02_5118" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="700" y="460" width="130" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s6" value="6. _anonymize_tree&#xa;NAD SU e01_3036" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="700" y="515" width="130" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s7" value="7. _write_oro&#xa;out_anonymized/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="870" y="470" width="130" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s8" value="Graine --seed 42&#xa;SHA256(seed:fichier)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="1040" y="470" width="140" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s9" value="Conservé : GLN, GTIN,&#xa;libellés, quantités" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="1210" y="470" width="130" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s5" target="s7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;endArrow=classic" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ed7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;endArrow=open;endFill=0" edge="1" parent="1" source="s8" target="s5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legende" value="Légende : vert = chemin production | bleu = anonymisation RGPD | jaune = étapes du script | rouge = graine reproductible&#xa;Fichier : architecture_anonymisation_TFE.drawio — Exporter en PNG pour Figure 5 du mémoire" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=10;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="40" y="640" width="900" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

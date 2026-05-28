@@ -1,0 +1,14 @@
+# Dépendances pour ouvrir / traiter les fichiers ORD (XML EDIFACT)
+# -----------------------------------------------------------------
+# Obligatoire : Python 3.9 ou plus récent (recommandé 3.10+).
+#
+# Bibliothèque standard (aucun paquet pip) :
+#   - xml.etree.ElementTree  — lecture / écriture XML
+#   - pathlib                — chemins de fichiers
+#   - argparse               — options en ligne de commande
+#   - hashlib, re, io        — anonymisation reproductible et écriture XML
+#
+# Encodage des fichiers : ISO-8859-15 (déclaré dans l’en-tête XML).
+#
+# Optionnel (gros volumes, parsing plus tolérant) :
+#   lxml>=5.0
